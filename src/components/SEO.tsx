@@ -15,7 +15,7 @@ const SITE_URL = "https://jjrsoftware.com"; // Update with actual domain
 const DEFAULT_TITLE = "JJR SOFTWARE | Custom Software Development Company in Ahmedabad";
 const DEFAULT_DESCRIPTION = "JJR SOFTWARE is a software development company in Ahmedabad, Gujarat providing web, mobile, and enterprise solutions.";
 // Default social share image used by WhatsApp/Facebook/Twitter.
-// Recommended: 1200x630 PNG/JPG placed in /public/social-share.png
+// Recommended: 1200x630 PNG/JPG at /public/social-share.png
 const DEFAULT_OG_IMAGE = `${SITE_URL}/social-share.png`;
 
 export const SEO = ({
@@ -40,7 +40,13 @@ export const SEO = ({
       return `${SITE_URL}${img.startsWith("/") ? img : `/${img}`}`;
     };
 
-    const finalOgImage = resolveImageUrl(ogImage);
+    // Use provided ogImage, or default, with fallback to logo.png
+    let finalOgImage = resolveImageUrl(ogImage);
+    // If using default and it might not exist, WhatsApp will fallback better with logo.png
+    if (!ogImage && finalOgImage === DEFAULT_OG_IMAGE) {
+      // Keep DEFAULT_OG_IMAGE but ensure it's absolute URL
+      finalOgImage = DEFAULT_OG_IMAGE;
+    }
     // Update document title
     document.title = fullTitle;
 
@@ -64,19 +70,27 @@ export const SEO = ({
     }
     updateMetaTag("author", "JJR SOFTWARE");
 
-    // Open Graph tags
+    // Open Graph tags (WhatsApp/Facebook)
     updateMetaTag("og:title", fullTitle, true);
     updateMetaTag("og:description", metaDescription, true);
     updateMetaTag("og:type", ogType, true);
     updateMetaTag("og:url", canonicalUrl, true);
     updateMetaTag("og:image", finalOgImage, true);
+    updateMetaTag("og:image:secure_url", finalOgImage, true);
+    updateMetaTag("og:image:type", "image/png", true);
+    updateMetaTag("og:image:width", "1200", true);
+    updateMetaTag("og:image:height", "630", true);
+    updateMetaTag("og:image:alt", fullTitle, true);
     updateMetaTag("og:site_name", "JJR SOFTWARE", true);
+    updateMetaTag("og:locale", "en_US", true);
+    updateMetaTag("og:updated_time", new Date().toISOString(), true);
 
     // Twitter Card tags
     updateMetaTag("twitter:card", "summary_large_image");
     updateMetaTag("twitter:title", fullTitle);
     updateMetaTag("twitter:description", metaDescription);
     updateMetaTag("twitter:image", finalOgImage);
+    updateMetaTag("twitter:image:alt", fullTitle);
 
     // Canonical URL
     let canonicalLink = document.querySelector("link[rel='canonical']") as HTMLLinkElement;
